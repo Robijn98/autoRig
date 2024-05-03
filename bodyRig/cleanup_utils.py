@@ -115,8 +115,8 @@ def cleanup_fullRig():
     arm_cleanup('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', LEFT)
     arm_cleanup('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', RIGHT)
 
-    #hand_cleanup('L_wrist_JNT', LEFT, fingers=['thumb', 'index', 'middle', 'pinky'])
-    #hand_cleanup('R_wrist_JNT',RIGHT, fingers=['thumb','index', 'middle','pinky'])
+    hand_cleanup('L_wrist_JNT', LEFT, fingers=['thumb', 'index', 'middle', 'ring', 'pinky'])
+    hand_cleanup('R_wrist_JNT',RIGHT, fingers=['thumb','index', 'middle', 'ring', 'pinky'])
 
     spine_cleanup()
 

@@ -20,11 +20,11 @@ CENTER = 'C'
 
 
 
-def ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
+def ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
     cmds.select(d=True)
 
     #duplicate chain
-    for  jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt]:
+    for  jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt]:
         mat = cmds.xform(jnt, q=True, m=True, ws=True)
         dupl_jnt = cmds.joint(n = jnt.replace(JOINT, f'IK_{JOINT}'))
         cmds.xform(dupl_jnt, m=mat, ws=True)
@@ -54,10 +54,10 @@ def ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
     cmds.parent(pv, PV_ctrl)
     cmds.hide(pv)
 
-def fk_leg(hipJnt, kneeJnt, ankleJnt, ballJnt,  side):
+def fk_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
     cmds.select(d=True)
 
-    original_chain = [hipJnt, kneeJnt, ankleJnt, ballJnt]
+    original_chain = [hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt]
     #duplicate chain
     for jnt in original_chain:
         mat = cmds.xform(jnt, q=True, m=True, ws=True)
@@ -82,19 +82,19 @@ def fk_leg(hipJnt, kneeJnt, ankleJnt, ballJnt,  side):
             prev_ctrl = prev_jnt.replace(JOINT, CONTROL)
             cmds.parent(FK_grp, prev_ctrl)
 
-def IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
+def IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
     #create and link attributes
     cmds.addAttr(f'{side}_IK_ankle_{CONTROL}', ln='IK_FK_Switch',  at='double', min=0, max=1, k=True)
     cmds.addAttr(f'{side}_leg_pv_{CONTROL}', ln='IK_FK_Switch',  at='double', min=0, max=1, k=True, proxy=f'{side}_IK_ankle_{CONTROL}.IK_FK_Switch')
 
 
-    for jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt]:
+    for jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt]:
         FK_jnt = jnt.replace(JOINT, f'FK_{JOINT}')
         FK_ctrl = FK_jnt.replace(JOINT, CONTROL)
         cmds.addAttr(FK_ctrl, ln='IK_FK_Switch', at='double', min=0, max=1, k=True, proxy = f'{side}_IK_ankle_{CONTROL}.IK_FK_Switch')
 
     #parentConstraints
-    for jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt]:
+    for jnt in [hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt]:
         pc = cmds.parentConstraint(jnt.replace(JOINT, f'IK_{JOINT}'), jnt.replace(JOINT, f'FK_{JOINT}'), jnt, mo=True)
         FK_jnt = jnt.replace(JOINT, f'FK_{JOINT}')
         cmds.connectAttr(f'{side}_IK_ankle_{CONTROL}.IK_FK_Switch', f'{pc[0]}.{FK_jnt}W1')
@@ -114,7 +114,7 @@ def IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
 
 
 
-def leg_cleanup(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
+def leg_cleanup(hipJnt, kneeJnt, ankleJnt, ballJnt,  side):
     cmds.select(hipJnt)
     spineBase = cmds.pickWalk(d='up')[0]
 
@@ -140,10 +140,10 @@ def leg_cleanup(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
 
 
 
-def IKFK_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, side):
-    ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, side)
-    fk_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, side)
-    IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt, side)
+def IKFK_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
+    ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt,side)
+    fk_leg(hipJnt, kneeJnt, ankleJnt, ballJnt,toeJnt, side)
+    IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt,toeJnt, side)
 
 
 
