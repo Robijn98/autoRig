@@ -100,7 +100,55 @@ def ik_spine(spineJoints = []):
     cmds.parent(spineJoints[0].replace(JOINT, f"FK_{GROUP}"), body_ctrl)
 
 
+def stretchSquashSpine(spineJoints = []):
+    #stretch squash
+    curveInfo = cmds.createNode('curveInfo', n= 'spineLength')
 
-def IKFK_spine(amountOfFKCtrls = 4, spineJoints = []):
+    cmds.connectAttr('spine_IK_curveShape.worldSpace[0]', f'{curveInfo}.inputCurve')
+
+    multDiv = cmds.createNode('multiplyDivide')
+
+    #cmds.connectAttr(f'{curveInfo}.arcLength', f'{multDiv}.input1X')
+    cmds.setAttr(f'{multDiv}.operation', 2)
+
+    og_length = cmds.getAttr(f'{curveInfo}.arcLength')
+    cmds.setAttr(f'{multDiv}.input2X', og_length)
+
+
+    #volume preservation
+    multDiv_volume = cmds.createNode('multiplyDivide', n = 'spine_squareRootX_Pow')
+    cmds.connectAttr(f'{multDiv}.outputX', f'{multDiv_volume}.input1X')
+    cmds.setAttr(f'{multDiv_volume}.input2X', -0.5)
+    cmds.setAttr(f'{multDiv_volume}.operation', 3)
+
+
+    #global scale
+    spineNorm = cmds.createNode('multiplyDivide', n='globalSpine_normalize')
+
+    cmds.connectAttr('master_CTRL.scaleY', 'master_CTRL.scaleX')
+    cmds.connectAttr('master_CTRL.scaleY', 'master_CTRL.scaleZ')
+
+    cmds.connectAttr('master_CTRL.scaleY', f'{spineNorm}.input2X')
+    cmds.connectAttr('spineLength.arcLength', f'{spineNorm}.input1X')
+
+    cmds.connectAttr(f'{spineNorm}.outputX', f'{multDiv}.input1X')
+
+    cmds.setAttr(f'{spineNorm}.operation', 2)
+
+
+    for jnt in spineJoints:
+        if spineJoints[0] == jnt:
+            print('skipping first spine joint')
+        else:
+            cmds.connectAttr(f'{multDiv}.outputX', f'{jnt}.scaleX')
+            cmds.connectAttr(f'{multDiv_volume}.outputX', f'{jnt}.scaleY')
+            cmds.connectAttr(f'{multDiv_volume}.outputX', f'{jnt}.scaleZ')
+
+
+
+
+def IKFK_spine(amountOfFKCtrls = 4, spineJoints = [], stretchSquash=False):
     fk_spine(amountOfFKCtrls, spineJoints)
     ik_spine(spineJoints)
+    if stretchSquash==True:
+        stretchSquashSpine(spineJoints)

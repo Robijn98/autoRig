@@ -38,4 +38,3 @@ def lock_pv(side):
     cmds.setAttr(f'{con}.secondTerm', 1)
     cmds.connectAttr(f'{con}.outColorR', f'{side}_arm_pv_GRP_parentConstraint1.{side}_IK_wrist_CTRLW0')
 
-spaceSwitch_wrist('L')

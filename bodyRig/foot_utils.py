@@ -138,7 +138,9 @@ def rev_foot_ctrl(kneeJnt, ankleJnt, ballJnt, toeJnt, controlLoc, side):
     cmds.connectAttr(f'{rot_ctrl}.rotateZ', f'{cond}.colorIfFalseG')
     cmds.connectAttr(f'{cond}.outColorG', f'{outerbank_jnt}.rotateZ')
 
+
     #pivot
+
     cmds.connectAttr(f'{rot_ctrl}.rotateY', f'{pivot_jnt}.rotateY')
 
     #heel
@@ -154,6 +156,7 @@ def rev_foot_ctrl(kneeJnt, ankleJnt, ballJnt, toeJnt, controlLoc, side):
     cmds.addAttr(rot_ctrl, ln='weight', at='double', min=0, max=1, k=True)
 
     cond = cmds.createNode('condition')
+    cmds.setAttr(f'{cond}.operation', 4)
     cmds.connectAttr(f'{rot_ctrl}.rotateX', f'{cond}.colorIfTrueR')
     cmds.connectAttr(f'{rot_ctrl}.rotateX', f'{cond}.firstTerm')
 
@@ -177,28 +180,17 @@ def rev_foot_ctrl(kneeJnt, ankleJnt, ballJnt, toeJnt, controlLoc, side):
     cmds.connectAttr(f'{multDiv}.outputX', f'{toe_jnt}.rotateZ')
 
 
-def rev_foot_cleanup(side):
-    offset = cmds.group(name = f'{side}_{REVERSE}_{GROUP}', empty=True)
-    cmds.parent(f'{side}_innerbank_{REVERSE}_{JOINT}', offset)
-
-    cmds.parentConstraint(f'{side}_IK_ankle_CTRL', offset, mo=True)
-
-    cmds.parent(f'{side}_rev_{FOOT}_{GROUP}', f'{side}_IK_ankle_CTRL')
-
 def rev_foot(kneeJnt, ankleJnt, ballJnt, toeJnt, controlLoc, side):
     rev_foot_joints(ankleJnt, ballJnt, toeJnt, side)
     rev_foot_IK(kneeJnt, ankleJnt, ballJnt, toeJnt, side)
     rev_foot_ctrl(kneeJnt, ankleJnt, ballJnt, toeJnt, controlLoc, side)
 
-rev_foot_cleanup('L')
-# delete guides function
 
-
-#execute
-#rev_foot_joints('L_ankle_JNT','L_ball_JNT','L_toe_JNT',LEFT)
-#rev_foot_IK('L_knee_JNT','L_ankle_JNT','L_ball_JNT','L_toe_JNT',LEFT)
-#rev_foot_ctrl('L_knee_JNT','L_ankle_JNT','L_ball_JNT','L_toe_JNT','L_rev_CTRL_guide',LEFT)
-
+'''#execute
+rev_foot_joints('_ankle_JNT','L_ball_JNT','L_toe_JNT',LEFT)
+rev_foot_IK('L_knee_JNT','L_ankle_JNT','L_ball_JNT','L_toe_JNT',LEFT)
+rev_foot_ctrl('L_knee_JNT','L_ankle_JNT','L_ball_JNT','L_toe_JNT','L_rev_CTRL_guide',LEFT)
+'''
 
 
 

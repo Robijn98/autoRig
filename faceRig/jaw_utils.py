@@ -1,10 +1,13 @@
 import maya.cmds as cmds
+import sys
+sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
+from general_functions import create_tempCtrl
 
 GROUP = 'GRP'
 JOINT = 'JNT'
 GUIDE = 'GUIDE'
 JAW = 'jaw'
-
+CONTROL = 'CTRL'
 #side constants
 LEFT = 'L'
 RIGHT = 'R'
@@ -299,6 +302,9 @@ def createSeals(part):
 
 def createJawAttrs():
 
+
+    #node = cmds.circle(n = 'jaw_attributes')[0]
+    #grp = cmds.group(node, n='jaw_attributes_GRP')
     node = cmds.createNode('transform', name = 'jaw_attributes', parent = f'{CENTER}_{JAW}_rig_{GROUP}')
     cmds.addAttr(node, ln= sorted(getLipParts()['C_upper'].keys())[0], min=0, max=1, dv=0)
     cmds.setAttr(f"{node}.{sorted(getLipParts()['C_upper'].keys())[0]}", lock=1)
@@ -598,18 +604,52 @@ def createJawPins():
 
 
 
+def create_jawCtrl():
+    jaw_grp, jaw_ctrl = create_tempCtrl(f'{CENTER}_{JAW}_{CONTROL}', lock = ['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
 
+    mat = cmds.xform(f'{CENTER}_{JAW}_{JOINT}', q=True, m=True, ws=True)
+    cmds.xform(jaw_grp, m=mat, ws=True)
 
+    cmds.parentConstraint(jaw_ctrl, f'{CENTER}_{JAW}_{JOINT}_OFF', mo=True)
 
+    cmds.addAttr(jaw_ctrl, ln='follow_TY', at='double', min=-10, max=10, dv =0, k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln='follow_TZ', at='double', min=-10, max=10, dv =0, k=True, h=False)
 
+    cmds.addAttr(jaw_ctrl, ln=f'{LEFT}_seal', at='double', min=0, max=10, dv =0, k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{RIGHT}_seal', at='double', min=0, max=10, dv =0, k=True, h=False)
 
+    cmds.addAttr(jaw_ctrl, ln=f'{LEFT}_seal_delay', at='double', min=0.1, max=10, dv =4, k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{RIGHT}_seal_delay', at='double', min=0.1, max=10, dv =4, k=True, h=False)
 
+    cmds.addAttr(jaw_ctrl, ln=f'{LEFT}_autocorner_pin', at='enum', en = "off:on", k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{LEFT}_corner_pin', at='double', min=-10, max=10, dv =0, k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{LEFT}_input_TY', at='double', min=-10, max=10, dv =0, k=True, h=False)
+
+    cmds.addAttr(jaw_ctrl, ln=f'{RIGHT}_autocorner_pin', at='enum', en = "off:on", k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{RIGHT}_corner_pin', at='double', min=-10, max=10, dv =0, k=True, h=False)
+    cmds.addAttr(jaw_ctrl, ln=f'{RIGHT}_input_TY', at='double', min=-10, max=10, dv =0, k=True, h=False)
+
+    cmds.connectAttr(f'{jaw_ctrl}.follow_TY', 'jaw_attributes.follow_ty')
+    cmds.connectAttr(f'{jaw_ctrl}.follow_TZ', 'jaw_attributes.follow_tz')
+
+    cmds.connectAttr(f'{jaw_ctrl}.{LEFT}_seal', 'jaw_attributes.L_seal')
+    cmds.connectAttr(f'{jaw_ctrl}.{RIGHT}_seal', 'jaw_attributes.R_seal')
+    cmds.connectAttr(f'{jaw_ctrl}.{LEFT}_seal_delay', 'jaw_attributes.L_seal_delay')
+    cmds.connectAttr(f'{jaw_ctrl}.{RIGHT}_seal_delay', 'jaw_attributes.R_seal_delay')
+
+    cmds.connectAttr(f'{jaw_ctrl}.{LEFT}_autocorner_pin', 'jaw_attributes.L_auto_corner_pin')
+    cmds.connectAttr(f'{jaw_ctrl}.{LEFT}_corner_pin', 'jaw_attributes.L_corner_pin')
+    cmds.connectAttr(f'{jaw_ctrl}.{LEFT}_input_TY', 'jaw_attributes.L_input_ty')
+
+    cmds.connectAttr(f'{jaw_ctrl}.{RIGHT}_autocorner_pin', 'jaw_attributes.R_auto_corner_pin')
+    cmds.connectAttr(f'{jaw_ctrl}.{RIGHT}_corner_pin', 'jaw_attributes.R_corner_pin')
+    cmds.connectAttr(f'{jaw_ctrl}.{RIGHT}_input_TY', 'jaw_attributes.R_input_ty')
 
 
 
 
 #testing
-#createGuides(number=8)
+#createGuides(number=1)
 createHierachy()
 createMinorJoints()
 createBroadJoints()
@@ -624,3 +664,4 @@ initialValuesJaw('lower')
 connectSeal('lower')
 connectSeal('upper')
 createJawPins()
+create_jawCtrl()

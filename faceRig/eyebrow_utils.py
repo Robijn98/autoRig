@@ -57,7 +57,7 @@ def createEyebrowRibbon(side):
         cmds.connectAttr(f'{plane}Shape.local', f'{side}_{BROW}_follicle_Shape{y}.inputSurface')
 
         cmds.setAttr(f'{fol}.parameterV', 0.5)
-        cmds.setAttr(f'{fol}.parameterU', float(i) / (len(listName)))
+        cmds.setAttr(f'{fol}.parameterU', 1/ (len(listName)))
 
         # shape ribbon to guides
 
@@ -103,5 +103,4 @@ def createEyeBrowJnts(side):
     cmds.SmoothBindSkin(tsb=True, cj=False)
 
 
-
-
+#createEyebrowGuides('L', 3)

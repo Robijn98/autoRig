@@ -1,11 +1,15 @@
 import maya.cmds as cmds
 import math
+import sys
 
+sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
+from general_functions import create_tempCtrl
 
 GROUP = 'GRP'
 JOINT = 'JNT'
 GUIDE = 'GUIDE'
 EYE = 'eye'
+CONTROL = 'CTRL'
 
 #side constants
 LEFT = 'L'
@@ -173,8 +177,18 @@ def eyeConnection(side, influenceProcent=0.2):
     aimed_jnt = f'{side}_{CENTER}_{EYE}_{JOINT}'
     cmds.aimConstraint(aim_jnt, aimed_jnt, mo=False, aim=(0, 0, 1))
 
+
+    #create ctrl
+    ctrl_grp, ctrl = create_tempCtrl(f'{side}_{EYE}_{CONTROL}', lock=['sx', 'sy', 'sz', 'rx', 'ry', 'rz'])
+    mat = cmds.xform(aim_jnt, q=True, m=True, ws=True)
+    cmds.xform(ctrl_grp, m=mat, ws=True)
+    cmds.parent(aim_jnt, ctrl)
+    cmds.addAttr(ctrl, ln='fleshy_multiplier',  at='double', min=0, max=5, dv=1, k=True)
+
+
+
     # multiply divide
-    jnts = cmds.listRelatives('L_eye_minor_GRP', ad=True, typ='joint')
+    jnts = cmds.listRelatives(f'{side}_eye_minor_GRP', ad=True, typ='joint')
     amount_jnts = sum(1 for s in jnts if 'upper' in s)
     mid_jnt = math.ceil(amount_jnts / 2)
     mid_jnt_upper = f'{side}_{EYE}upper_{mid_jnt}_{JOINT}'
@@ -183,21 +197,28 @@ def eyeConnection(side, influenceProcent=0.2):
     multDiv = cmds.createNode('multiplyDivide')
     cmds.connectAttr(f'{aimed_jnt}.rotate', f'{multDiv}.input1')
     cmds.connectAttr(f'{multDiv}.output', f'{mid_jnt_upper}_fleshy.rotate')
+
+    multDivAttr = cmds.createNode('multiplyDivide')
     for axis in ['X', 'Y', 'Z']:
-        cmds.setAttr(f"{multDiv}.input2{axis}", influenceProcent)
-    #cmds.setAttr(f"{multDiv}.input2X", influenceProcent)
-    #cmds.setAttr(f"{multDiv}.input2Y", influenceProcent)
-    #cmds.setAttr(f"{multDiv}.input2Z", influenceProcent)
+        cmds.connectAttr(f'{ctrl}.fleshy_multiplier', f'{multDivAttr}.input1{axis}')
+        cmds.setAttr(f"{multDivAttr}.input2{axis}", influenceProcent)
+
+    for axis in ['X', 'Y', 'Z']:
+        cmds.connectAttr(f'{multDivAttr}.output{axis}',f"{multDiv}.input2{axis}")
+
 
     multDiv = cmds.createNode('multiplyDivide')
     cmds.connectAttr(f'{aimed_jnt}.rotate', f'{multDiv}.input1')
     cmds.connectAttr(f'{multDiv}.output', f'{mid_jnt_lower}_fleshy.rotate')
-    for axis in ['X', 'Y', 'Z']:
-        cmds.setAttr(f"{multDiv}.input2{axis}", influenceProcent)
 
-    #cmds.setAttr(f"{multDiv}.input2X", influenceProcent)
-    #cmds.setAttr(f"{multDiv}.input2Y", influenceProcent)
-    #cmds.setAttr(f"{multDiv}.input2Z", influenceProcent)
+    multDivAttr = cmds.createNode('multiplyDivide')
+    for axis in ['X', 'Y', 'Z']:
+        cmds.connectAttr(f'{ctrl}.fleshy_multiplier', f'{multDivAttr}.input1{axis}')
+        cmds.setAttr(f"{multDivAttr}.input2{axis}", influenceProcent)
+
+    for axis in ['X', 'Y', 'Z']:
+        cmds.connectAttr(f'{multDivAttr}.output{axis}',f"{multDiv}.input2{axis}")
+
 
     newProcent = influenceProcent
     leftJnt = mid_jnt + 1
@@ -208,26 +229,40 @@ def eyeConnection(side, influenceProcent=0.2):
         for num in [leftJnt, rightJnt]:
             jnt_upper = f'{side}_{EYE}upper_{num}_{JOINT}'
             jnt_lower = f'{side}_{EYE}lower_{num}_{JOINT}'
+
             multDiv = cmds.createNode('multiplyDivide')
             cmds.connectAttr(f'{aimed_jnt}.rotate', f'{multDiv}.input1')
             cmds.connectAttr(f'{multDiv}.output', f'{jnt_upper}_fleshy.rotate')
+
+            multDivAttr = cmds.createNode('multiplyDivide')
             for axis in ['X', 'Y', 'Z']:
-                cmds.setAttr(f"{multDiv}.input2{axis}", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2X", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2Y", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2Z", newProcent)
+                cmds.connectAttr(f'{ctrl}.fleshy_multiplier', f'{multDivAttr}.input1{axis}')
+                cmds.setAttr(f"{multDivAttr}.input2{axis}", influenceProcent)
+
+            for axis in ['X', 'Y', 'Z']:
+                cmds.connectAttr(f'{multDivAttr}.output{axis}', f"{multDiv}.input2{axis}")
 
             multDiv = cmds.createNode('multiplyDivide')
             cmds.connectAttr(f'{aimed_jnt}.rotate', f'{multDiv}.input1')
             cmds.connectAttr(f'{multDiv}.output', f'{jnt_lower}_fleshy.rotate')
+
+            multDivAttr = cmds.createNode('multiplyDivide')
             for axis in ['X', 'Y', 'Z']:
-                cmds.setAttr(f"{multDiv}.input2{axis}", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2X", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2Y", newProcent)
-            #cmds.setAttr(f"{multDiv}.input2Z", newProcent)
+                cmds.connectAttr(f'{ctrl}.fleshy_multiplier', f'{multDivAttr}.input1{axis}')
+                cmds.setAttr(f"{multDivAttr}.input2{axis}", influenceProcent)
+
+            for axis in ['X', 'Y', 'Z']:
+                cmds.connectAttr(f'{multDivAttr}.output{axis}', f"{multDiv}.input2{axis}")
 
         leftJnt = leftJnt + 1
         rightJnt = rightJnt - 1
 
 
+'''createEyeGuides('R', number=3)
+createEyeGuides('L', number=3)'''
 
+createMinorEyeJoints('R')
+eyeConnection('R')
+
+createMinorEyeJoints('L')
+eyeConnection('L')

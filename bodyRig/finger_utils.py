@@ -17,8 +17,8 @@ LEFT = 'L'
 RIGHT = 'R'
 CENTER = 'C'
 
-finger_knuckles = ['_00', '_01', '_02', '_end']
-thumb_knuckles = ['_00', '_01', '_end']
+finger_knuckles = ['_00', '_01', '_02', '_03', '_end']
+thumb_knuckles = ['_00', '_01', '_02', '_end']
 
 
 def fk_fingers_ctrls(fingers = []):
@@ -54,7 +54,7 @@ def fingers_attr(wristJnt, fingers = []):
     else:
         hand_name = wristJnt.replace('wrist', 'hand')
 
-    hand_grp, hand_ctrl = create_tempCtrl(hand_name.replace(JOINT, CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz',])
+    hand_grp, hand_ctrl = create_tempCtrl(hand_name.replace(JOINT, CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz'])
     cmds.xform(hand_grp, m=mat, ws=True)
 
 
@@ -78,10 +78,9 @@ def fingers_attr(wristJnt, fingers = []):
 
             #connect attributes
             if 'A' not in offset:
-                cmds.connectAttr(f'{hand_ctrl}.{finger}_curl', f'{offset}.rz')
+                cmds.connectAttr(f'{hand_ctrl}.{finger}_curl', f'{offset}.ry')
 
 def FK_fingers(wristJnt, fingers = []):
     fk_fingers_ctrls(fingers)
     fingers_attr(wristJnt, fingers)
-
 

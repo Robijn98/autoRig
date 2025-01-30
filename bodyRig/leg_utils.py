@@ -1,10 +1,5 @@
-import sys
 import maya.cmds as cmds
-
-sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
 from poleVector import find_poleVector
-
-sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
 from general_functions import create_tempCtrl
 
 GROUP = 'GRP'
@@ -44,6 +39,15 @@ def ik_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
     IK_grp, IK_ctrl = create_tempCtrl(f'{side}_IK_ankle_{CONTROL}', lock=['sx', 'sy', 'sz'])
     mat = cmds.xform(ankleJnt, q=True, m=True, ws=True)
     cmds.xform(IK_grp, m=mat, ws=True)
+    if side == LEFT:
+        cmds.setAttr(f'{IK_grp}.rotateX', 0)
+        cmds.setAttr(f'{IK_grp}.rotateY', -90)
+        cmds.setAttr(f'{IK_grp}.rotateZ', 0)
+    else:
+        cmds.setAttr(f'{IK_grp}.rotateX', -90)
+        cmds.setAttr(f'{IK_grp}.rotateY', 0)
+        cmds.setAttr(f'{IK_grp}.rotateZ', 90)
+
 
     cmds.parent(leg_ik[0], IK_ctrl)
 
@@ -146,7 +150,8 @@ def IKFK_leg(hipJnt, kneeJnt, ankleJnt, ballJnt, toeJnt, side):
     IKFK_switch(hipJnt, kneeJnt, ankleJnt, ballJnt,toeJnt, side)
 
 
-
+#fk_leg('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', 'L_ball_JNT', 'L_toe_JNT', LEFT)
+#IKFK_switch('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', 'L_ball_JNT', 'L_toe_JNT', LEFT)
 
 
 #EXECUTE

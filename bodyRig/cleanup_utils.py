@@ -9,6 +9,9 @@ CONTROL = 'CTRL'
 JOINT = 'JNT'
 GUIDE = 'GUIDE'
 ROOT = 'root'
+FOOT = 'foot'
+REVERSE = 'rev'
+LEG = 'leg'
 
 #side constants
 LEFT = 'L'
@@ -16,7 +19,7 @@ RIGHT = 'R'
 CENTER = 'C'
 
 def root_setup(rootJoint = ''):
-    masterGrp, masterCtrl = create_tempCtrl(f'master_{CONTROL}', lock = ['sx', 'sy', 'sz', 'v'])
+    masterGrp, masterCtrl = create_tempCtrl(f'master_{CONTROL}', lock = ['v'])
 
     skelGrp = cmds.group(n = f'skeleton_{GROUP}', empty= True)
     dontTouchGrp = cmds.group(n = f'dontTouch_{GROUP}', empty= True)
@@ -108,6 +111,21 @@ def spine_cleanup():
     cmds.parent('body_GRP', f'root_{CONTROL}')
 
 
+def rev_foot_cleanup(ankle_JNT, side):
+    offset = cmds.group(name = f'{side}_{REVERSE}_{GROUP}', empty=True)
+    mat = cmds.xform(ankle_JNT, q=True, m=True, ws=True)
+    cmds.xform(offset, m=mat, ws=True)
+
+    cmds.parent(f'{side}_innerbank_{REVERSE}_{JOINT}', offset)
+
+    cmds.parentConstraint(f'{side}_IK_ankle_CTRL', offset, mo=True)
+
+    cmds.parent(f'{side}_rev_{FOOT}_{GROUP}', f'{side}_IK_ankle_CTRL')
+    cmds.parent(offset, f'dontTouch_{GROUP}')
+
+    cmds.scaleConstraint('master_CTRL', offset, mo=True)
+
+
 def cleanup_fullRig():
     leg_cleanup('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', RIGHT)
     leg_cleanup('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', LEFT)
@@ -118,11 +136,9 @@ def cleanup_fullRig():
     hand_cleanup('L_wrist_JNT', LEFT, fingers=['thumb', 'index', 'middle', 'ring', 'pinky'])
     hand_cleanup('R_wrist_JNT',RIGHT, fingers=['thumb','index', 'middle', 'ring', 'pinky'])
 
+    rev_foot_cleanup('L_ankle_JNT', LEFT)
+    rev_foot_cleanup('R_ankle_JNT', RIGHT)
     spine_cleanup()
 
-
-
-#EXECUTE
-#root_setup('root')
 
 

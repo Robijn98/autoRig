@@ -45,7 +45,14 @@ def ik_arm(shoulderJnt, elbowJnt, wristJnt, side):
     IK_grp, IK_ctrl = create_tempCtrl(f'{side}_IK_wrist_{CONTROL}', lock=['sx', 'sy', 'sz'])
     mat = cmds.xform(wristJnt, q=True, m=True, ws=True)
     cmds.xform(IK_grp, m=mat, ws=True)
-
+    if side == LEFT:
+        cmds.setAttr(f'{IK_grp}.rotateY', 0)
+        cmds.setAttr(f'{IK_grp}.rotateX', 90)
+        cmds.setAttr(f'{IK_grp}.rotateZ', 0)
+    else:
+        cmds.setAttr(f'{IK_grp}.rotateY', 0)
+        cmds.setAttr(f'{IK_grp}.rotateX', -90)
+        cmds.setAttr(f'{IK_grp}.rotateZ', 0)
     cmds.parent(arm_ik[0], IK_ctrl)
 
     PV_grp, PV_ctrl = create_tempCtrl(f'{side}_arm_pv_{CONTROL}', lock=['sx', 'sy', 'sz', 'rx', 'ry', 'rz'])
@@ -129,5 +136,6 @@ def IKFK_arm(shoulderJnt, elbowJnt, wristJnt, clavJnt, side, clav =True):
         clav_control(clavJnt, side)
 
 #EXECUTE
+#IKFK_arm('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', 'L_clavicle_JNT', LEFT)
 
 
