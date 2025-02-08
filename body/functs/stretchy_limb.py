@@ -124,15 +124,15 @@ def stretchy_proporties(joint1, joint2, joint3, part, ik_ctrl, side):
 
 
 
-#execute
-stretch_joints('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', 'L_IK_wrist_CTRL', LEFT)
-stretchy_proporties('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', ARM, 'L_IK_wrist_CTRL', LEFT)
+# #execute
+# stretch_joints('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', 'L_IK_wrist_CTRL', LEFT)
+# stretchy_proporties('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', ARM, 'L_IK_wrist_CTRL', LEFT)
 
-stretch_joints('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', 'R_IK_wrist_CTRL', RIGHT)
-stretchy_proporties('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', ARM, 'R_IK_wrist_CTRL', RIGHT)
+# stretch_joints('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', 'R_IK_wrist_CTRL', RIGHT)
+# stretchy_proporties('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', ARM, 'R_IK_wrist_CTRL', RIGHT)
 
-stretch_joints('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', 'L_IK_ankle_CTRL', LEFT)
-stretchy_proporties('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT',LEG, 'L_IK_ankle_CTRL', LEFT)
+# stretch_joints('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', 'L_IK_ankle_CTRL', LEFT)
+# stretchy_proporties('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT',LEG, 'L_IK_ankle_CTRL', LEFT)
 
-stretch_joints('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', 'R_IK_ankle_CTRL', RIGHT)
-stretchy_proporties('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT',LEG, 'R_IK_ankle_CTRL', RIGHT)
+# stretch_joints('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', 'R_IK_ankle_CTRL', RIGHT)
+# stretchy_proporties('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT',LEG, 'R_IK_ankle_CTRL', RIGHT)

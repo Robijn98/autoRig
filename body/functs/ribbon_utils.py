@@ -217,9 +217,9 @@ def createRibbonLimb(side, name, joints = []):
     connectRibbonToJoints(side, name, joints)
 
 #createRibbonGuides('L', 'leg')
-createRibbon('L', 'leg')
-createRibbonJnts('L', 'leg')
-createRibbonCtrls('L', 'leg')
-connectRibbonToJoints('L', 'leg', joints = ['L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT'])
+# createRibbon('L', 'leg')
+# createRibbonJnts('L', 'leg')
+# createRibbonCtrls('L', 'leg')
+# connectRibbonToJoints('L', 'leg', joints = ['L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT'])
 
 #createRibbonLimb('L', 'arm', joints = ['L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT'])

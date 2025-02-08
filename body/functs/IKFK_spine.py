@@ -1,62 +1,64 @@
 import sys
 import maya.cmds as cmds
-
-sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
 from general_functions import create_tempCtrl
 
+class IKFK_spine:
 
-GROUP = 'GRP'
-CONTROL = 'CTRL'
-JOINT = 'JNT'
-GUIDE = 'GUIDE'
-SPINE = 'spine'
+    GROUP = 'GRP'
+    CONTROL = 'CTRL'
+    JOINT = 'JNT'
+    GUIDE = 'GUIDE'
+    SPINE = 'spine'
 
-#side constants
-LEFT = 'L'
-RIGHT = 'R'
-CENTER = 'C'
+    #side constants
+    LEFT = 'L'
+    RIGHT = 'R'
+    CENTER = 'C'
 
-def fk_spine(amountOfCtrls = 4, spineJoints = []):
+    def __init__(self, self.spineJoints):
+        self.self.spineJoints = self.spineJoints
 
-    startPoint = cmds.xform(spineJoints[0], q=True, t=True, ws=True)
-    endPoint = cmds.xform(spineJoints[-1], q=True, t=True, ws=True)
-    spineCurve = cmds.curve(n = f'{SPINE}_FK_curve', p=[startPoint, endPoint], d=1)
-    cmds.rebuildCurve(spineCurve, ch=1, rpo=1, rt=0, end=1, kr=0, kep=1, kt=0, s=1, d=3)
+    def fk_spine(self, amountOfCtrls = 4):
 
-    #create FK joints
-    for CV in range(4):
-        pos = cmds.pointPosition(f'{spineCurve}.cv[{CV}]', w=True)
+        startPoint = cmds.xform(self.spineJoints[0], q=True, t=True, ws=True)
+        endPoint = cmds.xform(self.spineJoints[-1], q=True, t=True, ws=True)
+        spineCurve = cmds.curve(n = f'{SPINE}_FK_curve', p=[startPoint, endPoint], d=1)
+        cmds.rebuildCurve(spineCurve, ch=1, rpo=1, rt=0, end=1, kr=0, kep=1, kt=0, s=1, d=3)
 
-        origin_jnt = spineJoints[CV]
-        FK_jnt = cmds.joint(n = origin_jnt.replace(JOINT, f'FK_{JOINT}'), p=pos)
+        #create FK joints
+        for CV in range(4):
+            pos = cmds.pointPosition(f'{spineCurve}.cv[{CV}]', w=True)
 
-        oc = cmds.orientConstraint(spineJoints[0], FK_jnt, mo=False)
-        cmds.delete(oc)
+            origin_jnt = self.spineJoints[CV]
+            FK_jnt = cmds.joint(n = origin_jnt.replace(JOINT, f'FK_{JOINT}'), p=pos)
 
-    cmds.select(d=True)
+            oc = cmds.orientConstraint(self.spineJoints[0], FK_jnt, mo=False)
+            cmds.delete(oc)
 
-    #parent FK ctrls in right order
-    for CV in range(4):
-        origin_jnt = spineJoints[CV]
-        FK_jnt =  origin_jnt.replace(JOINT, f'FK_{JOINT}')
-        FK_grp, FK_ctrl = create_tempCtrl(FK_jnt.replace(JOINT, CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
-        mat = cmds.xform(FK_jnt, q=True, m=True, ws=True)
-        cmds.xform(FK_grp, m=mat, ws=True)
+        cmds.select(d=True)
 
-        if CV != 0:
-            prev_jnt = spineJoints[CV-1]
-            prev_ctrl = prev_jnt.replace(JOINT, f'FK_{CONTROL}')
-            cmds.parent(FK_grp, prev_ctrl)
+        #parent FK ctrls in right order
+        for CV in range(4):
+            origin_jnt = self.spineJoints[CV]
+            FK_jnt =  origin_jnt.replace(JOINT, f'FK_{JOINT}')
+            FK_grp, FK_ctrl = create_tempCtrl(FK_jnt.replace(JOINT, CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
+            mat = cmds.xform(FK_jnt, q=True, m=True, ws=True)
+            cmds.xform(FK_grp, m=mat, ws=True)
+
+            if CV != 0:
+                prev_jnt = self.spineJoints[CV-1]
+                prev_ctrl = prev_jnt.replace(JOINT, f'FK_{CONTROL}')
+                cmds.parent(FK_grp, prev_ctrl)
 
 
-        cmds.parentConstraint(FK_ctrl, FK_jnt, mo=True)
+            cmds.parentConstraint(FK_ctrl, FK_jnt, mo=True)
 
 
-def ik_spine(spineJoints = []):
+def ik_spine(self):
 
     #create controls
-    startPoint = cmds.xform(spineJoints[0], q=True, m=True, ws=True)
-    endPoint = cmds.xform(spineJoints[-1], q=True, m=True, ws=True)
+    startPoint = cmds.xform(self.spineJoints[0], q=True, m=True, ws=True)
+    endPoint = cmds.xform(self.spineJoints[-1], q=True, m=True, ws=True)
 
     body_grp, body_ctrl = create_tempCtrl(f'body_{CONTROL}', lock=['sx', 'sy', 'sz'])
     cmds.xform(body_grp, m=startPoint, ws=True)
@@ -69,7 +71,7 @@ def ik_spine(spineJoints = []):
 
 
     #create IK spline
-    IK_spine = cmds.ikHandle(n=f'{SPINE}_IK', sol='ikSplineSolver', sj=spineJoints[0], ee=spineJoints[-1], ns=1,
+    IK_spine = cmds.ikHandle(n=f'{SPINE}_IK', sol='ikSplineSolver', sj=self.spineJoints[0], ee=self.spineJoints[-1], ns=1,
                              rtm=False, pcv=False)
     IK_curve = cmds.rename(IK_spine[2], f'{SPINE}_IK_curve')
 
@@ -94,13 +96,13 @@ def ik_spine(spineJoints = []):
     cmds.connectAttr(f"{chest_ctrl}.worldMatrix", f"{IK_spine[0]}.dWorldUpMatrixEnd")
 
     #connect
-    cmds.parent(chest_grp, spineJoints[3].replace(JOINT, f"FK_{CONTROL}"))
+    cmds.parent(chest_grp, self.spineJoints[3].replace(JOINT, f"FK_{CONTROL}"))
     cmds.parent(pelvis_grp, body_ctrl)
-    cmds.parent(spineJoints[0].replace(JOINT, f"FK_{JOINT}"), body_ctrl)
-    cmds.parent(spineJoints[0].replace(JOINT, f"FK_{GROUP}"), body_ctrl)
+    cmds.parent(self.spineJoints[0].replace(JOINT, f"FK_{JOINT}"), body_ctrl)
+    cmds.parent(self.spineJoints[0].replace(JOINT, f"FK_{GROUP}"), body_ctrl)
 
 
-def stretchSquashSpine(spineJoints = []):
+def stretchSquashSpine(self):
     #stretch squash
     curveInfo = cmds.createNode('curveInfo', n= 'spineLength')
 
@@ -136,8 +138,8 @@ def stretchSquashSpine(spineJoints = []):
     cmds.setAttr(f'{spineNorm}.operation', 2)
 
 
-    for jnt in spineJoints:
-        if spineJoints[0] == jnt:
+    for jnt in self.spineJoints:
+        if self.spineJoints[0] == jnt:
             print('skipping first spine joint')
         else:
             cmds.connectAttr(f'{multDiv}.outputX', f'{jnt}.scaleX')
@@ -145,10 +147,9 @@ def stretchSquashSpine(spineJoints = []):
             cmds.connectAttr(f'{multDiv_volume}.outputX', f'{jnt}.scaleZ')
 
 
-
-
-def IKFK_spine(amountOfFKCtrls = 4, spineJoints = [], stretchSquash=False):
-    fk_spine(amountOfFKCtrls, spineJoints)
-    ik_spine(spineJoints)
+def spine(self, amountOfFKCtrls = 4, stretchSquash=False):
+    fk_spine(amountOfFKCtrls)
+    ik_spine()
     if stretchSquash==True:
-        stretchSquashSpine(spineJoints)
+        stretchSquashSpine()
+
