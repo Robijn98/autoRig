@@ -2,7 +2,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Robijn98/autoRig">
-    <img src="images/dragonRig.png" alt="Logo" width="250">
+    <img src="z_images/dragonRig.png" alt="Logo" width="250">
   </a>
   <h3 align="center">Rig Forge Tool</h3>
   
