@@ -8,13 +8,7 @@
   
 </div>
 
-<!-- ABOUT THE PROJECT -->
-## About The Project
-
-RF is a tool you can use within maya to autorig creatures and digidoubles. The tool uses a skeleton
-to build upon and creates all controllers and functionality through a modifiable script. 
-
-### Built With
+## Built With
 <div align="center">
 
 [![Linux](https://img.shields.io/badge/platform-Linux-green?logo=linux&logoColor=white)](#)
@@ -22,4 +16,12 @@ to build upon and creates all controllers and functionality through a modifiable
 [![Python](https://img.shields.io/badge/platform-Python-blue?logo=python&logoColor=white)](#)
 
 </div>
+
+
+<!-- ABOUT THE PROJECT -->
+### About The Project
+
+RF is a tool you can use within maya to autorig creatures and digidoubles. The tool uses a skeleton
+to build upon and creates all controllers and functionality through a modifiable script. 
+
 
