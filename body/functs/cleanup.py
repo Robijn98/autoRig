@@ -1,144 +1,131 @@
 import sys
 import maya.cmds as cmds
-
-sys.path.append("C:\\Users\\robin\\PycharmProjects\\autoRig\\bodyRig\\")
 from general_functions import create_tempCtrl
 
-GROUP = 'GRP'
-CONTROL = 'CTRL'
-JOINT = 'JNT'
-GUIDE = 'GUIDE'
-ROOT = 'root'
-FOOT = 'foot'
-REVERSE = 'rev'
-LEG = 'leg'
+class cleanup:
 
-#side constants
-LEFT = 'L'
-RIGHT = 'R'
-CENTER = 'C'
+    GROUP = 'GRP'
+    CONTROL = 'CTRL'
+    JOINT = 'JNT'
+    GUIDE = 'GUIDE'
+    ROOT = 'root'
+    FOOT = 'foot'
+    REVERSE = 'rev'
+    LEG = 'leg'
+    LEFT = 'L'
+    RIGHT = 'R'
+    CENTER = 'C'
 
-def root_setup(rootJoint = ''):
-    masterGrp, masterCtrl = create_tempCtrl(f'master_{CONTROL}', lock = ['v'])
+    def __init__(self, hipJnt, kneeJnt, ankleJnt, shoulderJnt, elbowJnt, wristJnt, fingers = [], side):
+        self.hipJnt = hipJnt
+        self.kneeJnt = kneeJnt
+        self.ankleJnt = ankleJnt
+        self.shoulderJnt = shoulderJnt
+        self.elbowJnt = elbowJnt
+        self.wristJnt = wristJnt
+        self.fingers = fingers
+        self.side = side
 
-    skelGrp = cmds.group(n = f'skeleton_{GROUP}', empty= True)
-    dontTouchGrp = cmds.group(n = f'dontTouch_{GROUP}', empty= True)
+    
 
-    cmds.parent(skelGrp, masterCtrl)
-    cmds.parent(dontTouchGrp, masterGrp)
-    cmds.parent(rootJoint, skelGrp)
+    def leg_cleanup(self):
+        cmds.select(self.hipJnt)
+        spineBase = cmds.pickWalk(d='up')[0]
 
-    offsetGrp, offsetCtrl = create_tempCtrl(f'offset_{CONTROL}', lock = ['sx', 'sy', 'sz', 'v'])
-    rootGrp, rootCtrl = create_tempCtrl(f'root_{CONTROL}', lock = ['sx', 'sy', 'sz', 'v'])
+        cmds.parent(self.hipJnt.replace(self.JOINT, f'FK_{self.JOINT}'), spineBase)
+        cmds.parent(self.hipJnt.replace(self.JOINT, f'IK_{self.JOINT}'), f'skeleton_{self.GROUP}')
 
-    cmds.parent(offsetGrp, masterCtrl)
-    cmds.parent(rootGrp, offsetCtrl)
+        # IK cleanup
+        if cmds.objExists('pelvis_CTRL'):
+            cmds.parentConstraint('pelvis_CTRL', self.hipJnt.replace(self.JOINT, f'IK_{self.JOINT}'), mo=True)
+        else:
+            raise Exception("Warning: no pelvis control exists.")
 
+        cmds.parent(f'{self.side}_IK_ankle_GRP', 'offset_CTRL')
+        cmds.parent(f'{self.side}_leg_pv_GRP', 'offset_CTRL')
 
-def leg_cleanup(hipJnt, kneeJnt, ankleJnt, side):
-    cmds.select(hipJnt)
-    spineBase = cmds.pickWalk(d='up')[0]
+        # FK
+        grp = self.hipJnt.replace(self.JOINT, f'FK_{self.GROUP}')
 
-    cmds.parent(hipJnt.replace(JOINT, f'FK_{JOINT}'), spineBase)
-    cmds.parent(hipJnt.replace(JOINT, f'IK_{JOINT}'), f'skeleton_{GROUP}')
-
-    # IK cleanup
-    if cmds.objExists('pelvis_CTRL'):
-        cmds.parentConstraint('pelvis_CTRL', hipJnt.replace(JOINT, f'IK_{JOINT}'), mo=True)
-    else:
-        raise Exception("Warning: no pelvis control exists.")
-
-    cmds.parent(f'{side}_IK_ankle_GRP', 'offset_CTRL')
-    cmds.parent(f'{side}_leg_pv_GRP', 'offset_CTRL')
-
-    # FK
-    grp = hipJnt.replace(JOINT, f'FK_{GROUP}')
-
-    if cmds.objExists('pelvis_CTRL'):
-        cmds.parent(grp, 'pelvis_CTRL')
-    else:
-        raise Exception("Warning: no pelvis control exists.")
+        if cmds.objExists('pelvis_CTRL'):
+            cmds.parent(grp, 'pelvis_CTRL')
+        else:
+            raise Exception("Warning: no pelvis control exists.")
 
 
-def arm_cleanup(shoulderJnt, elbowJnt, wristJnt, side):
-    cmds.select(shoulderJnt)
-    clav = cmds.pickWalk(d='up')[0]
+    def arm_cleanup(self):
+        cmds.select(self.shoulderJnt)
+        clav = cmds.pickWalk(d='up')[0]
 
-    cmds.parent(shoulderJnt.replace(JOINT, f'FK_{JOINT}'), clav)
-    cmds.parent(shoulderJnt.replace(JOINT, f'IK_{JOINT}'), f'skeleton_{GROUP}')
+        cmds.parent(self.shoulderJnt.replace(self.JOINT, f'FK_{self.JOINT}'), clav)
+        cmds.parent(self.shoulderJnt.replace(self.JOINT, f'IK_{self.JOINT}'), f'skeleton_{self.GROUP}')
 
-    # IK cleanup
-    if cmds.objExists(clav.replace(JOINT, CONTROL)):
-        cmds.parentConstraint(clav.replace(JOINT, CONTROL), shoulderJnt.replace(JOINT, f'IK_{JOINT}'), mo=True)
-    else:
-        raise Exception("Warning: no clavicle control exists.")
+        # IK cleanup
+        if cmds.objExists(clav.replace(self.JOINT, self.CONTROL)):
+            cmds.parentConstraint(clav.replace(self.JOINT, self.CONTROL), self.shoulderJnt.replace(self.JOINT, f'IK_{self.JOINT}'), mo=True)
+        else:
+            raise Exception("Warning: no clavicle control exists.")
 
-    cmds.parent(f'{side}_IK_wrist_GRP', 'offset_CTRL')
-    cmds.parent(f'{side}_arm_pv_GRP', 'offset_CTRL')
+        cmds.parent(f'{self.side}_IK_wrist_GRP', 'offset_CTRL')
+        cmds.parent(f'{self.side}_arm_pv_GRP', 'offset_CTRL')
 
-    # FK
-    grp = shoulderJnt.replace(JOINT, f'FK_{GROUP}')
+        # FK
+        grp = self.shoulderJnt.replace(self.JOINT, f'FK_{self.GROUP}')
 
-    if cmds.objExists(clav.replace(JOINT, CONTROL)):
-        cmds.parent(grp, clav.replace(JOINT, CONTROL))
-        if cmds.objExists('chest_CTRL'):
-            cmds.parent(clav.replace(JOINT, GROUP), 'chest_CTRL')
-    else:
-        raise Exception("Warning: no clavicle control exists.")
-
-
-def hand_cleanup(wristJnt, side, fingers=[]):
-    mat = cmds.xform(wristJnt, q=True, m=True, ws=True)
-    handLoc = cmds.spaceLocator(n=f'{side}_wrist_{GROUP}')
-    cmds.xform(handLoc, m=mat, ws=True)
-
-    for finger in fingers:
-        fingerStart = f'{side}_{finger}_00_{GROUP}'
-        cmds.parent(fingerStart, handLoc)
-
-    cmds.parent(handLoc, f'master_{CONTROL}')
-    cmds.parentConstraint(wristJnt, handLoc)
-
-    cmds.parent(f'{side}_hand_{GROUP}', f'master_{CONTROL}')
-
-    cmds.orientConstraint(f'{side}_IK_wrist_{CONTROL}', f'{side}_wrist_IK_{JOINT}', mo=True)
+        if cmds.objExists(clav.replace(self.JOINT, self.CONTROL)):
+            cmds.parent(grp, clav.replace(self.JOINT, self.CONTROL))
+            if cmds.objExists('chest_CTRL'):
+                cmds.parent(clav.replace(self.JOINT, self.GROUP), 'chest_CTRL')
+        else:
+            raise Exception("Warning: no clavicle control exists.")
 
 
-def spine_cleanup():
-    cmds.parent('spine_IK', f'dontTouch_{GROUP}')
-    cmds.parent('spine_IK_curve', f'dontTouch_{GROUP}')
-    cmds.parent('spine_FK_curve', f'dontTouch_{GROUP}')
-    cmds.parent('body_GRP', f'root_{CONTROL}')
+    def hand_cleanup(self):
+        mat = cmds.xform(self.wristJnt, q=True, m=True, ws=True)
+        handLoc = cmds.spaceLocator(n=f'{self.side}_wrist_{self.GROUP}')
+        cmds.xform(handLoc, m=mat, ws=True)
+
+        for finger in self.fingers:
+            fingerStart = f'{self.side}_{finger}_00_{self.GROUP}'
+            cmds.parent(fingerStart, handLoc)
+
+        cmds.parent(handLoc, f'master_{self.CONTROL}')
+        cmds.parentConstraint(self.wristJnt, handLoc)
+
+        cmds.parent(f'{self.side}_hand_{self.GROUP}', f'master_{self.CONTROL}')
+
+        cmds.orientConstraint(f'{self.side}_IK_wrist_{self.CONTROL}', f'{self.side}_wrist_IK_{self.JOINT}', mo=True)
 
 
-def rev_foot_cleanup(ankle_JNT, side):
-    offset = cmds.group(name = f'{side}_{REVERSE}_{GROUP}', empty=True)
-    mat = cmds.xform(ankle_JNT, q=True, m=True, ws=True)
-    cmds.xform(offset, m=mat, ws=True)
+    def spine_cleanup(self):
+        cmds.parent('spine_IK', f'dontTouch_{self.GROUP}')
+        cmds.parent('spine_IK_curve', f'dontTouch_{self.GROUP}')
+        cmds.parent('spine_FK_curve', f'dontTouch_{self.GROUP}')
+        cmds.parent('body_GRP', f'root_{self.CONTROL}')
 
-    cmds.parent(f'{side}_innerbank_{REVERSE}_{JOINT}', offset)
+    def rev_foot_cleanup(self):
+        offset = cmds.group(name = f'{self.side}_{self.REVERSE}_{self.GROUP}', empty=True)
+        mat = cmds.xform(self.ankleJNT, q=True, m=True, ws=True)
+        cmds.xform(offset, m=mat, ws=True)
 
-    cmds.parentConstraint(f'{side}_IK_ankle_CTRL', offset, mo=True)
+        cmds.parent(f'{self.side}_innerbank_{self.REVERSE}_{self.JOINT}', offset)
 
-    cmds.parent(f'{side}_rev_{FOOT}_{GROUP}', f'{side}_IK_ankle_CTRL')
-    cmds.parent(offset, f'dontTouch_{GROUP}')
+        cmds.parentConstraint(f'{self.side}_IK_ankle_CTRL', offset, mo=True)
 
-    cmds.scaleConstraint('master_CTRL', offset, mo=True)
+        cmds.parent(f'{self.side}_rev_{self.FOOT}_{self.GROUP}', f'{self.side}_IK_ankle_CTRL')
+        cmds.parent(offset, f'dontTouch_{self.GROUP}')
+
+        cmds.scaleConstraint('master_CTRL', offset, mo=True)
 
 
-def cleanup_fullRig():
-    leg_cleanup('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', RIGHT)
-    leg_cleanup('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', LEFT)
+    def cleanup_full(self)
+        leg_cleanup()
+        arm_cleanup()
+        hand_cleanup()
+        rev_foot_cleanup()
+        spine_cleanup()
 
-    arm_cleanup('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', LEFT)
-    arm_cleanup('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', RIGHT)
 
-    hand_cleanup('L_wrist_JNT', LEFT, fingers=['thumb', 'index', 'middle', 'ring', 'pinky'])
-    hand_cleanup('R_wrist_JNT',RIGHT, fingers=['thumb','index', 'middle', 'ring', 'pinky'])
-
-    rev_foot_cleanup('L_ankle_JNT', LEFT)
-    rev_foot_cleanup('R_ankle_JNT', RIGHT)
-    spine_cleanup()
 
 
 
