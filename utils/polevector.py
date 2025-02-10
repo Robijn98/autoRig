@@ -2,53 +2,60 @@ import maya.cmds as cmds
 import math
 import numpy as np
 
-def calculateVector(A, B):
-    if len(A) != len(B):
-        raise ValueError("Points must have the same dimensionality")
 
-    vector = [B[i] - A[i] for i in range(len(A))]
-    return vector
+class poleVector:
 
-def project_vector_onto_direction(A, B, C):
-    A = np.array(A)
-    B = np.array(B)
-    C = np.array(C)
+    def __init__(self, shoulderJnt, elbowJnt, wristJnt):
+        self.shoulderJnt = shoulderJnt
+        self.elbowJnt = elbowJnt
+        self.wristJnt = wristJnt
 
-    AC = C - A
-    AB = B - A
+    def calculateVector(self, A, B):
+        if len(A) != len(B):
+            raise ValueError("Points must have the same dimensionality")
 
-    dot_product = np.dot(AB, AC)
-    magnitude_squared = np.dot(AC, AC)
+        vector = [B[i] - A[i] for i in range(len(A))]
+        return vector
 
-    scalar_projection = dot_product / magnitude_squared
-    vector_projection = scalar_projection * AC
+    def project_vector_onto_direction(self, A, B, C):
+        A = np.array(A)
+        B = np.array(B)
+        C = np.array(C)
 
-    projected_point = A + vector_projection
+        AC = C - A
+        AB = B - A
 
-    return projected_point
+        dot_product = np.dot(AB, AC)
+        magnitude_squared = np.dot(AC, AC)
 
-def find_poleVector(shoulderJnt="", elbowJnt="", wristJnt="", scalar=3):
+        scalar_projection = dot_product / magnitude_squared
+        vector_projection = scalar_projection * AC
 
-    A = cmds.xform(shoulderJnt, q=True, t=True, ws=True)
-    B = cmds.xform(elbowJnt, q=True, t=True, ws=True)
-    C = cmds.xform(wristJnt, q=True, t=True, ws=True)
+        projected_point = A + vector_projection
+
+        return projected_point
+
+    def find_poleVector(self, scalar=3):
+        
+        A = cmds.xform(self.shoulderJnt, q=True, t=True, ws=True)
+        B = cmds.xform(self.elbowJnt, q=True, t=True, ws=True)
+        C = cmds.xform(self.wristJnt, q=True, t=True, ws=True)
+
+        D = self.project_vector_onto_direction(A,B,C)
+        vector_DB = self.calculateVector(D, B)
+        new_vec = []
+
+        for point in range(3):
+            new_point = vector_DB[point] * scalar
+            new_vec.append(new_point)
+
+        E = []
+
+        for point in range(3):
+            new_point = D[point] + new_vec[point]
+            E.append(new_point)
+
+        return E
 
 
-    D = project_vector_onto_direction(A,B,C)
-    vector_DB = calculateVector(D, B)
-    new_vec = []
-
-    for point in range(3):
-        new_point = vector_DB[point] * scalar
-        new_vec.append(new_point)
-
-
-    E = []
-
-    for point in range(3):
-        new_point = D[point] + new_vec[point]
-        E.append(new_point)
-
-
-    return E
 
