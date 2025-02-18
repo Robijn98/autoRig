@@ -1,7 +1,7 @@
 import sys
 import maya.cmds as cmds
-from general_functions import create_tempCtrl
-from general_functions import addOffset
+from controller import create_temp_ctrl
+from controller import add_offset
 
 class hand:
 
@@ -34,7 +34,7 @@ class hand:
 
             for num, knuckle in enumerate(knuckles):
                 knuckle = f'{finger}{knuckle}_{self.JOINT}'
-                FK_grp, FK_ctrl = create_tempCtrl(knuckle.replace(self.JOINT, self.CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
+                FK_grp, FK_ctrl = create_temp_ctrl(knuckle.replace(self.JOINT, self.CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
 
                 mat = cmds.xform(knuckle, q=True, m=True, ws=True)
                 cmds.xform(FK_grp, m=mat, ws=True)
@@ -55,7 +55,7 @@ class hand:
         else:
             hand_name = self.wristJnt.replace('wrist', 'hand')
 
-        hand_grp, hand_ctrl = create_tempCtrl(hand_name.replace(self.JOINT, self.CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz'])
+        hand_grp, hand_ctrl = create_temp_ctrl(hand_name.replace(self.JOINT, self.CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz', 'rx', 'ry', 'rz'])
         cmds.xform(hand_grp, m=mat, ws=True)
 
         # create offsets for attributes to be connected too
@@ -71,10 +71,10 @@ class hand:
 
             for num, knuckle in enumerate(knuckles):
                 knuckle_ctrl = f'{finger}{knuckle}_{self.CONTROL}'
-                offset = addOffset(knuckle_ctrl, suffix='OFF')
+                offset = add_offset(knuckle_ctrl, suffix='OFF')
 
                 #connect attributes
-                if 'A' not in offset:
+                if '_01' not in offset:
                     cmds.connectAttr(f'{hand_ctrl}.{finger}_curl', f'{offset}.ry')
 
     

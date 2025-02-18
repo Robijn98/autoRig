@@ -6,11 +6,12 @@ import numpy as np
 class poleVector:
 
     def __init__(self, shoulderJnt, elbowJnt, wristJnt):
+        print("Initializing polevector")
         self.shoulderJnt = shoulderJnt
         self.elbowJnt = elbowJnt
         self.wristJnt = wristJnt
 
-    def calculateVector(self, A, B):
+    def calculate_vector(self, A, B):
         if len(A) != len(B):
             raise ValueError("Points must have the same dimensionality")
 
@@ -35,14 +36,14 @@ class poleVector:
 
         return projected_point
 
-    def find_poleVector(self, scalar=3):
-        
+    def find_polevector(self, scalar=3):
+        print("Finding polevector")        
         A = cmds.xform(self.shoulderJnt, q=True, t=True, ws=True)
         B = cmds.xform(self.elbowJnt, q=True, t=True, ws=True)
         C = cmds.xform(self.wristJnt, q=True, t=True, ws=True)
 
         D = self.project_vector_onto_direction(A,B,C)
-        vector_DB = self.calculateVector(D, B)
+        vector_DB = self.calculate_vector(D, B)
         new_vec = []
 
         for point in range(3):

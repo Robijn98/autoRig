@@ -1,6 +1,6 @@
 import maya.cmds as cmds
 import sys
-from general_functions import create_tempCtrl
+from controller import create_temp_ctrl
 from controller import add_offset_jnt
 from controller import add_offset
 
@@ -524,7 +524,7 @@ class jaw:
             cmds.connectAttr(f'{rev}.outputX', const_pin_down)
 
     def create_jaw_ctrl(self):
-        jaw_grp, jaw_ctrl = create_tempCtrl(f'{CENTER}_{JAW}_{CONTROL}', lock = ['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
+        jaw_grp, jaw_ctrl = create_temp_ctrl(f'{CENTER}_{JAW}_{CONTROL}', lock = ['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
 
         mat = cmds.xform(f'{CENTER}_{JAW}_{JOINT}', q=True, m=True, ws=True)
         cmds.xform(jaw_grp, m=mat, ws=True)

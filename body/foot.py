@@ -1,7 +1,6 @@
 import sys
 import maya.cmds as cmds
-from general_functions import create_tempCtrl
-from general_functions import addOffset
+from controller import create_temp_ctrl
 
 class foot:
    
@@ -80,7 +79,7 @@ class foot:
         
 
     def rev_foot_ctrl(self, controlLoc):
-        rot_grp, rot_ctrl = create_tempCtrl(f'{self.side}_rev_{self.FOOT}_{self.CONTROL}', lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
+        rot_grp, rot_ctrl = create_temp_ctrl(f'{self.side}_rev_{self.FOOT}_{self.CONTROL}', lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
         ctrl_pos = cmds.xform(controlLoc, q=True, m=True, ws=True)
         cmds.xform(rot_grp, m=ctrl_pos, ws=True)
 

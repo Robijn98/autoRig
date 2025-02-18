@@ -1,6 +1,6 @@
 import sys
 import maya.cmds as cmds
-from general_functions import create_tempCtrl
+from controller import create_temp_ctrl
 
 class stretchy_limb:
 
@@ -34,7 +34,7 @@ class stretchy_limb:
 
     def stretchy_proporties(self):
         #create 'attach' ctrl
-        root_grp, root_ctrl = create_tempCtrl(f'{self.side}_{self.ARM}_root_CTRL', lock=['sx', 'sy', 'sz'])
+        root_grp, root_ctrl = create_temp_ctrl(f'{self.side}_{self.ARM}_root_CTRL', lock=['sx', 'sy', 'sz'])
         mat = cmds.xform(self.joints[0], q=True, m=True, ws=True)
         cmds.xform(root_grp, m=mat, ws=True)
 

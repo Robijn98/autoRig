@@ -1,8 +1,8 @@
 import math
 import maya.cmds as cmds
 import sys
-from general_functions import create_tempCtrl
-from general_functions import addOffset
+from controller import create_temp_ctrl
+from controller import add_offset
 
 
 class ribbon:
@@ -118,11 +118,11 @@ class ribbon:
         for i in range(ctrl_amount):
             num += 1
             jnt = f'{self.side}_{self.name}_{self.JOINT}_0{num}'
-            ctrl_grp, ctrl = create_tempCtrl(f'{self.side}_{self.name}_0{num}_{self.CONTROL}', lock=[])
+            ctrl_grp, ctrl = create_temp_ctrl(f'{self.side}_{self.name}_0{num}_{self.CONTROL}', lock=[])
             mat = cmds.xform(jnt, q=True, m=True, ws=True)
             cmds.xform(ctrl_grp, m=mat, ws=True)
             if jnt not in mainJnts:
-                addOffset(ctrl)
+                add_offset(ctrl)
 
             cmds.parent(jnt, ctrl)
 
@@ -150,7 +150,7 @@ class ribbon:
         mid_jnt = math.ceil(ctrl_amount / 2)
 
         for num, ctrl in enumerate(mainCtrls):
-            offset = addOffset(ctrl)
+            offset = add_offset(ctrl)
             cmds.parentConstraint(joints[num], offset, mo=True)
 
         for num in range(1, ctrl_amount):

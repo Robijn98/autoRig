@@ -1,7 +1,7 @@
 import maya.cmds as cmds
 import math
 import sys
-from general_functions import create_tempCtrl
+from controller import create_temp_ctrl
 from controller import add_offset_grp
 from controller import add_offset_jnt
 
@@ -72,7 +72,7 @@ class eye:
                 cmds.parent(grp_offset, dst_parent)
             cmds.parent(jnt, grp_offset)
 
-            addOffsetGrp(jnt, suffix = 'OFF')
+            add_offsetGrp(jnt, suffix = 'OFF')
 
         #aim_jnt
         aim_guide = f'{self.side}_{self.EYE}Aim_{self.GUIDE}'
@@ -92,7 +92,7 @@ def eye_connection(self, influenceProcent=0.2):
     cmds.aimConstraint(aim_jnt, aimed_jnt, mo=False, aim=(0, 0, 1))
 
     #create ctrl
-    ctrl_grp, ctrl = create_tempCtrl(f'{self.side}_{self.EYE}_{self.CONTROL}', lock=['sx', 'sy', 'sz', 'rx', 'ry', 'rz'])
+    ctrl_grp, ctrl = create_temp_ctrl(f'{self.side}_{self.EYE}_{self.CONTROL}', lock=['sx', 'sy', 'sz', 'rx', 'ry', 'rz'])
     mat = cmds.xform(aim_jnt, q=True, m=True, ws=True)
     cmds.xform(ctrl_grp, m=mat, ws=True)
     cmds.parent(aim_jnt, ctrl)
