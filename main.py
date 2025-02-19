@@ -41,6 +41,15 @@ try:
 except ImportError:
     print("Error importing arm_rig")
 
+try:
+    import rig_hand
+    importlib.reload(rig_hand)
+    from rig_hand import hand
+    print("imported hand_rig successfully")
+except ImportError:
+    print("Error importing hand_rig")
+
+
 #cleanup
 try:
     import rig_cleanup
@@ -50,12 +59,6 @@ try:
 except ImportError:
     print("Error importing cleanup")
 
-#from cleanup import cleanup
-# from cleanup import hand_cleanup
-# from cleanup import rev_foot_cleanup
-# from cleanup import spine_cleanup
-# from cleanup import cleanup_fullRig
-# import numpy as np
 
 #from spine_rig import IKFK_spine
 # from spine_utils import IKFK_spine
@@ -74,58 +77,34 @@ except ImportError:
 # from eyebrow_utils import createEyebrowRibbon
 
 
-# def attr_ctrl():
-#     ctrl_grp, ctrl = create_temp_ctrl(f'{CENTER}_attr_{CONTROL}', lock=['sx', 'sy', 'sz','rx', 'ry', 'rz', 'tx', 'ty', 'tz'])
-#     cmds.addAttr(ctrl, ln='skeleton_vis', at='enum', en = "off:on", k=True, h=False)
-#     cmds.addAttr(ctrl, ln='stretch_ctrls_vis', at='enum', en = "off:on", k=True, h=False)
-
-#     cmds.connectAttr(f'{ctrl}.skeleton_vis', 'L_rev_GRP.visibility')
-#     cmds.connectAttr(f'{ctrl}.skeleton_vis', 'R_rev_GRP.visibility')
-#     cmds.connectAttr(f'{ctrl}.skeleton_vis', 'root_JNT.visibility')
-
-
-
-#root_setup('root_JNT')
-
-
-# FK_fingers('L_wrist_JNT',['L_thumb', 'L_index', 'L_middle', 'L_ring', 'L_pinky'])
-
-
-
-# IKFK_spine(amountOfFKCtrls = 3, spineJoints = ['C_spine_00_JNT', 'C_spine_02_JNT', 'C_spine_03_JNT',
-#                                                'C_spine_04_JNT', 'C_spine_05_JNT', 'C_spine_06_JNT'])
-
-
-# IKFK_leg('L_hip_JNT', 'L_knee_JNT', 'L_ankle_JNT', 'L_ball_JNT', 'L_toe_JNT', LEFT)
-# IKFK_leg('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', 'R_ball_JNT','R_toe_JNT', RIGHT)
-
-# IKFK_arm('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', 'R_clav_JNT', RIGHT)
-# IKFK_arm('L_shoulder_JNT', 'L_elbow_JNT', 'L_wrist_JNT', 'L_clav_JNT', LEFT)
-
-
-# FK_fingers('L_wrist_JNT',['L_thumb', 'L_index', 'L_middle', 'L_ring', 'L_pinky'])
-# FK_fingers('R_wrist_JNT',['R_thumb', 'R_index', 'R_middle','R_ring', 'R_pinky'])
 
 # rev_foot('L_knee_JNT','L_ankle_JNT','L_ball_JNT','L_toe_JNT','L_rev_CTRL_guide', LEFT)
 # rev_foot('R_knee_JNT','R_ankle_JNT','R_ball_JNT','R_toe_JNT','R_rev_CTRL_guide', RIGHT)
-
-# cleanup_fullRig()
-# #leg_cleanup('R_hip_JNT', 'R_knee_JNT', 'R_ankle_JNT', RIGHT)
-# #rev_foot_cleanup('R_ankle_JNT', RIGHT)
 
 # #createEyeGuides('R', number=3)
 # #createEyeGuides('L', number=3)
 
 
 # #attr_ctrl()
-# #cleanup_fullRig()
+
+
 def main():
+    print("reopening file")
+    current_file = cmds.file(q=True, sn=True)
+    if current_file:
+        cmds.file(current_file, o=True, f=True)
+    else:
+        print("No file to open")
+
+        
     print("Running main")
+    
     try:
-        my_setup = setup('root_JNT')
+        my_setup = setup("root_JNT")
         my_setup.root_setup()
     except Exception as e:
         print(f"Error during setup: {e}")
+
 
     try:
         spine = IKFK_spine(['spineA_JNT', 'spineB_JNT', 'spineC_JNT', 'spineD_JNT', 'spineE_JNT', 'spineF_JNT', 'spineG_JNT'])
@@ -154,11 +133,23 @@ def main():
     except Exception as e:
         print(f"Error during arm setup: {e}")
 
+
     try:
-        rig_clean = cleanup("L_hip_JNT", "L_knee_JNT", "L_ankle_JNT", "L_shoulder_JNT", "L_elbow_JNT", "L_wrist_JNT", LEFT, fingers = [])
-        rig_clean.cleanup_full(spine = True, leg=True, arm=True, hand = False, rev_foot = False)
-        rig_clean = cleanup("R_hip_JNT", "R_knee_JNT", "R_ankle_JNT", "R_shoulder_JNT", "R_elbow_JNT", "R_wrist_JNT", RIGHT, fingers = [])
-        rig_clean.cleanup_full(spine = False, hand = False, rev_foot = False)
+        fingers = hand('R_wrist_JNT',['R_thumb', 'R_index', 'R_middle','R_ring', 'R_pinky'])
+        fingers.fingers_rig()
+        print("Right fingers setup complete")
+        fingers = hand('L_wrist_JNT',['L_thumb', 'L_index', 'L_middle', 'L_ring', 'L_pinky'])
+        fingers.fingers_rig()
+        print("Left fingers setup complete")
+    except Exception as e:
+        print(f"Error during finger setup: {e}")
+
+    try:
+        rig_clean = cleanup("L_hip_JNT", "L_knee_JNT", "L_ankle_JNT", "L_shoulder_JNT", "L_elbow_JNT", "L_wrist_JNT", LEFT, fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'])
+        rig_clean.cleanup_full(spine = True, leg=True, arm=True, hand = True, rev_foot = False)
+        rig_clean = cleanup("R_hip_JNT", "R_knee_JNT", "R_ankle_JNT", "R_shoulder_JNT", "R_elbow_JNT", "R_wrist_JNT", RIGHT, fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'])
+        rig_clean.cleanup_full(spine = False, hand = True, rev_foot = False)
+        print("Cleanup complete")
     except Exception as e:
         print(f"Error during cleanup: {e}")
 

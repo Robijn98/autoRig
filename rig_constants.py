@@ -13,3 +13,5 @@ LEG = 'leg'
 ARM = 'arm'
 FOOT = 'foot'
 REVERSE = 'rev'
+FINGER = 'finger'
+

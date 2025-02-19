@@ -5,9 +5,9 @@ import maya.cmds as cmds
 import importlib
 
 sys.path.append('/home/s5725067/myRepos/autoRig/')
-import constants_rig
-importlib.reload(constants_rig)
-from constants_rig import *
+import rig_constants
+importlib.reload(rig_constants)
+from rig_constants import *
 
 sys.path.append('/home/s5725067/myRepos/autoRig/utils/')
 import controller_utils
@@ -38,4 +38,15 @@ class setup:
         cmds.parent(offsetGrp, masterCtrl)
         cmds.parent(rootGrp, offsetCtrl)
         print("Root setup complete")
+
+    def attr_ctrl(self):
+
+        ctrl_grp, ctrl = controller.create_temp_ctrl(f'{CENTER}_attr_{CONTROL}', lock=['sx', 'sy', 'sz','rx', 'ry', 'rz', 'tx', 'ty', 'tz'])
+        cmds.addAttr(ctrl, ln='skeleton_vis', at='enum', en = "off:on", k=True, h=False)
+        cmds.addAttr(ctrl, ln='stretch_ctrls_vis', at='enum', en = "off:on", k=True, h=False)
+
+        cmds.connectAttr(f'{ctrl}.skeleton_vis', 'L_rev_GRP.visibility')
+        cmds.connectAttr(f'{ctrl}.skeleton_vis', 'R_rev_GRP.visibility')
+        cmds.connectAttr(f'{ctrl}.skeleton_vis', 'root_JNT.visibility')
+
 
