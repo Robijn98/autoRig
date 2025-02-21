@@ -9,7 +9,8 @@ class controller:
 
     @staticmethod
     def create_temp_ctrl(name, lock=[]):
-        ctrl = cmds.circle(n=name)[0]
+        ctrl = cmds.curve(d=1, p=[(0, 0, 0), (0, 0, 1), (0, 1, 1), (0, 1, 0), (0, 0, 0)], k=[0, 1, 2, 3, 4], n=name)
+        #ctrl = cmds.circle(n=name)[0]
         grp = cmds.group(ctrl, n=name.replace(CONTROL, GROUP))
 
         for transform in lock:

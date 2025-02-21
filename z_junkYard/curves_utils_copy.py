@@ -95,7 +95,7 @@ def replace_curves(master_group, file = "curve_data.json"):
         curve_data = json.load(f)
 
     ctrls = get_ctrls(master_group)   
-    #ctrls = ["body_CTRL"]
+    ctrls = ["L_IK_wrist_CTRL", "R_IK_wrist_CTRL"]
 
     print(f"Replacing {len(ctrls)} curves")
 
@@ -114,20 +114,12 @@ def replace_curves(master_group, file = "curve_data.json"):
 
                     #parent the curve to the ctrl, maintainin the offset
                     newShape = cmds.listRelatives(curve, shapes=True)[0]
-                    
-                    ctrl_matrix = cmds.xform(ctrl, q=True, ws=True, matrix=True)
-                    inverse_node = cmds.createNode("inverseMatrix")
-                    cmds.setAttr(f"{inverse_node}.inputMatrix", ctrl_matrix, type="matrix")
-                    inverse_matrix = cmds.getAttr(f"{inverse_node}.outputMatrix")
 
-                    cmds.xform(f"{curve}.cv[*]", r=True, os=True, matrix=inverse_matrix)
-
-                    cmds.delete(inverse_node)
-                    
-                    cmds.parent(newShape, ctrl, r=True, s=True)
-
-                    cmds.delete(curve)
-
+                    # #move the shape to 0,0,0
+                    # cmds.CenterPivot(curve)
+                    # cmds.move(0,0,0, curve,  rpr =True)
+                    # cmds.makeIdentity(curve, a=True, t=True, r=True, s=True, n=False, pn=True)
+                    # cmds.parent(newShape, ctrl, r=True, s=True)
 
                     if data["color"]:
                         cmds.setAttr(f"{newShape}.overrideEnabled", 1)
@@ -136,32 +128,6 @@ def replace_curves(master_group, file = "curve_data.json"):
                         cmds.setAttr(f"{newShape}.overrideColorG", data["color"][1])
                         cmds.setAttr(f"{newShape}.overrideColorB", data["color"][2])
 
-
-
-def reparent_curve_shape(shape, new_parent):
-    """Reparents a curve shape while maintaining its original orientation."""
-
-    # Get the inverse world matrix of the new parent
-    parent_matrix = cmds.xform(new_parent, q=True, worldSpace=True, matrix=True)
-    parent_matrix = om.MMatrix(parent_matrix)
-    inverse_parent_matrix = parent_matrix.inverse()
-
-    # Move all CVs to compensate for the new parent
-    num_cvs = cmds.getAttr(f"{shape}.spans") + cmds.getAttr(f"{shape}.degree")
-    
-    for i in range(num_cvs):
-        # Get CV position in world space
-        world_pos = cmds.xform(f"{shape}.cv[{i}]", q=True, worldSpace=True, translation=True)
-        world_point = om.MPoint(*world_pos, 1)
-
-        # Convert to local space of the new parent
-        local_point = world_point * inverse_parent_matrix
-
-        # Move CVs to new local space
-        cmds.xform(f"{shape}.cv[{i}]", worldSpace=False, translation=(local_point.x, local_point.y, local_point.z))
-
-    # Parent the shape under the new transform
-    cmds.parent(shape, new_parent, shape=True, relative=True)
 
 
 
