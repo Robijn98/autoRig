@@ -166,25 +166,6 @@ def reparent_curve_shape(shape, new_parent):
 
 
 
-def create_curve(file = "curve_data.json"):
-    project_path = os.getcwd()
-    file_path = os.path.join(project_path, file)
-
-    with open(file_path, "r") as f:
-        curve_data = json.load(f)
-        for data in curve_data:
-            print(f"knots: {data['knots']}")
-            print(f"points: {data['points']}")
-            curve = cmds.curve(d = data["degree"], p = data["points"], k= data["knots"][0], n = data["name"] + "_TEMP")
-            if data["color"]:
-                cmds.setAttr(f"{curve}.overrideEnabled", 1)
-                cmds.setAttr(f"{curve}.overrideRGBColors", 1)
-                cmds.setAttr(f"{curve}.overrideColorR", data["color"][0])
-                cmds.setAttr(f"{curve}.overrideColorG", data["color"][1])
-                cmds.setAttr(f"{curve}.overrideColorB", data["color"][2])
-
-
-
 def main():
     #save_curve_to_json("master_GRP", file = "curve_data.json")
     replace_curves("master_GRP", file = "curve_data.json")
