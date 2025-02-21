@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 junkYard/
 curve_data.json
+.idea/
