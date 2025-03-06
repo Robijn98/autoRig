@@ -28,7 +28,7 @@ class IKFK_spine:
         cmds.rebuildCurve(spineCurve, ch=1, rpo=1, rt=0, end=1, kr=0, kep=1, kt=0, s=1, d=3)
 
         #create FK joints
-        for CV in range(4):
+        for CV in range(amountOfCtrls):
             pos = cmds.pointPosition(f'{spineCurve}.cv[{CV}]', w=True)
 
             origin_jnt = self.spineJoints[CV]
@@ -40,7 +40,7 @@ class IKFK_spine:
         cmds.select(d=True)
 
         #parent FK ctrls in right order
-        for CV in range(4):
+        for CV in range(amountOfCtrls):
             origin_jnt = self.spineJoints[CV]
             FK_jnt =  origin_jnt.replace(JOINT, f'FK_{JOINT}')
             FK_grp, FK_ctrl = controller.create_temp_ctrl(FK_jnt.replace(JOINT, CONTROL), lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])

@@ -39,6 +39,7 @@ class IKFK_leg:
             duplicated_joints.append(dupl_jnt)
         
         return duplicated_joints
+        
 
     def ik_leg(self):
         self.duplicate_chain('IK')
@@ -48,7 +49,7 @@ class IKFK_leg:
 
         pv = cmds.spaceLocator(n = f'{self.side}_{LEG}_polevector')
         leg_poleVec = poleVector(self.hipJnt, self.kneeJnt, self.ankleJnt)
-        pv_t = leg_poleVec.find_polevector()
+        pv_t = leg_poleVec.find_polevector(scalar = 5)
         cmds.xform(pv, t=pv_t)
         cmds.poleVectorConstraint(pv, leg_ik[0])
 

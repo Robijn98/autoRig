@@ -1,21 +1,18 @@
 import sys
 import maya.cmds as cmds
-from controller import create_temp_ctrl
+import importlib
+
+sys.path.append('/home/s5725067/myRepos/autoRig/')
+import rig_constants
+importlib.reload(rig_constants)
+from rig_constants import *
+
+sys.path.append('/home/s5725067/myRepos/autoRig/utils/')
+import controller_utils
+importlib.reload(controller_utils)
+from controller_utils import controller
 
 class foot:
-   
-    GROUP = 'GRP'
-    CONTROL = 'CTRL'
-    JOINT = 'JNT'
-    GUIDE = 'GUIDE'
-    FOOT = 'foot'
-    REVERSE = 'rev'
-    LEG = 'leg'
-
-    # side constants
-    LEFT = 'L'
-    RIGHT = 'R'
-    CENTER = 'C'
 
     def __init__(self, ankleJnt, ballJnt, toeJnt, side):
         self.ankleJnt = ankleJnt
@@ -29,7 +26,7 @@ class foot:
         for guide in [f'{self.side}_innerBank_guide', f'{self.side}_outerBank_guide', f'{self.side}_heel_guide']:
             if cmds.objExists(guide):
                 cmds.select(cl=True)
-                jnt = cmds.joint(name=f'{guide.replace(self.GUIDE, self.JOINT)}')
+                jnt = cmds.joint(name=f"{guide.replace(GUIDE, JOINT)}")
                 mat = cmds.xform(guide, q=True, m=True, ws=True)
                 cmds.xform(jnt, m=mat, ws=True)
             else:
@@ -39,57 +36,58 @@ class foot:
 
         for jnt in [self.ankleJnt, self.ballJnt, self.toeJnt]:
             if cmds.objExists(jnt):
-                cmds.select(cl=True)
-                jnt = cmds.joint(name=f'{jnt.replace(self.JOINT, f'{self.REVERSE}_{self.JOINT}')}')
+                rev_jnt = cmds.joint(name=jnt.replace(JOINT, f"{REVERSE}_{JOINT}"))
                 mat = cmds.xform(jnt, q=True, m=True, ws=True)
-                cmds.xform(jnt, m=mat, ws=True)
+                cmds.xform(rev_jnt, m=mat, ws=True)
+                cmds.select(cl=True)
             else:
                 raise ValueError(f'no {jnt} joint')
         
         cmds.select(cl=True)
-        pivot_jnt = cmds.joint(name=f'{self.side}_pivot_{self.REVERSE}_{self.JOINT}')
+        pivot_jnt = cmds.joint(name=f'{self.side}_pivot_{REVERSE}_{JOINT}')
         mat = cmds.xform(self.ballJnt, q=True, m=True, ws=True)
         cmds.xform(pivot_jnt, m=mat, ws=True)
 
         # parenting in right order
-        cmds.parent(self.ankleJnt, self.ballJnt)
-        cmds.parent(self.ballJnt, self.toeJnt)
-        cmds.parent(self.toeJnt, pivot_jnt)
-        cmds.parent(pivot_jnt, self.ankleJnt)
-        cmds.parent(self.ankleJnt, f'{self.side}_innerBank_{self.REVERSE}_{self.JOINT}')
-        cmds.parent(f'{self.side}_innerBank_{self.REVERSE}_{self.JOINT}', f'{self.side}_outerBank_{self.REVERSE}_{self.JOINT}')
+        #rev foot joints
+        cmds.parent(f"{self.side}_ankle_{REVERSE}_{JOINT}", f"{self.side}_ball_{REVERSE}_{JOINT}")
+        cmds.parent(f"{self.side}_ball_{REVERSE}_{JOINT}", f"{self.side}_toe_{REVERSE}_{JOINT}")
+        cmds.parent(f"{self.side}_toe_{REVERSE}_{JOINT}", pivot_jnt)
+        cmds.parent(pivot_jnt, f"{self.side}_heel_{JOINT}")
+        cmds.parent(f"{self.side}_heel_{JOINT}", f"{self.side}_outerBank_{JOINT}")
+        cmds.parent(f"{self.side}_outerBank_{JOINT}", f"{self.side}_innerBank_{JOINT}")
 
-        cmds.makeIdentity(f'{self.side}_innerBank_{self.REVERSE}_{self.JOINT}', apply=True, t=1, r=1, s=1, n=0, pn=1)
+        cmds.makeIdentity(f'{self.side}_innerBank_{JOINT}', apply=True, t=1, r=1, s=1, n=0, pn=1)
 
 
 
     def rev_foot_IK(self):
         # create IK handles
-        ball_IK = cmds.ikHandle(n=f'{self.side}_ankle_IK', sj=self.ankleJnt.replace(self.JOINT, f'IK_{self.JOINT}'),
-                                ee=self.ballJnt.replace(self.JOINT, f'IK_{self.JOINT}'), sol='ikSCsolver')[0]
+        ball_IK = cmds.ikHandle(n=f'{self.side}_ankle_IK', sj=self.ankleJnt.replace(JOINT, f'IK_{JOINT}'),
+                                ee=self.ballJnt.replace(JOINT, f'IK_{JOINT}'), sol='ikSCsolver')[0]
 
-        toe_IK = cmds.ikHandle(n=f'{self.side}_ball_IK', sj=self.ballJnt.replace(self.JOINT, f'IK_{self.JOINT}'),
-                                ee=self.toeJnt.replace(self.JOINT, f'IK_{self.JOINT}'), sol='ikSCsolver')[0]
+        toe_IK = cmds.ikHandle(n=f'{self.side}_ball_IK', sj=self.ballJnt.replace(JOINT, f'IK_{JOINT}'),
+                                ee=self.toeJnt.replace(JOINT, f'IK_{JOINT}'), sol='ikSCsolver')[0]
 
-        leg_IK = f'{self.side}_{self.LEG}_IK'
+        leg_IK = f'{self.side}_{LEG}_IK'
 
-        cmds.parent(toe_IK, f'{self.side}_toe_{self.REVERSE}_{self.JOINT}')
-        cmds.parent(ball_IK, f'{self.side}_ball_{self.REVERSE}_{self.JOINT}')
-        cmds.parent(leg_IK, f'{self.side}_ball_{self.REVERSE}_{self.JOINT}')
+        cmds.parent(toe_IK, f'{self.side}_toe_{REVERSE}_{JOINT}')
+        cmds.parent(ball_IK, f'{self.side}_ball_{REVERSE}_{JOINT}')
+        cmds.parent(leg_IK, f'{self.side}_ball_{REVERSE}_{JOINT}')
         
 
     def rev_foot_ctrl(self, controlLoc):
-        rot_grp, rot_ctrl = create_temp_ctrl(f'{self.side}_rev_{self.FOOT}_{self.CONTROL}', lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
+        rot_grp, rot_ctrl = controller.create_temp_ctrl(f'{self.side}_rev_{FOOT}_{CONTROL}', lock=['sx', 'sy', 'sz', 'tx', 'ty', 'tz'])
         ctrl_pos = cmds.xform(controlLoc, q=True, m=True, ws=True)
         cmds.xform(rot_grp, m=ctrl_pos, ws=True)
 
         #banking
-        innerbank_jnt = f'{self.side}_innerbank_{self.REVERSE}_{self.JOINT}'
-        outerbank_jnt = f'{self.side}_outerbank_{self.REVERSE}_{self.JOINT}'
-        pivot_jnt = f'{self.side}_pivot_{self.REVERSE}_{self.JOINT}'
-        ball_jnt = f'{self.side}_ball_{self.REVERSE}_{self.JOINT}'
-        toe_jnt = f'{self.side}_toe_{self.REVERSE}_{self.JOINT}'
-        heel_jnt = f'{self.side}_heel_{self.REVERSE}_{self.JOINT}'
+        innerbank_jnt = f'{self.side}_innerBank_{JOINT}'
+        outerbank_jnt = f'{self.side}_outerBank_{JOINT}'
+        pivot_jnt = f'{self.side}_pivot_{REVERSE}_{JOINT}'
+        ball_jnt = f'{self.side}_ball_{REVERSE}_{JOINT}'
+        toe_jnt = f'{self.side}_toe_{REVERSE}_{JOINT}'
+        heel_jnt = f'{self.side}_heel_{JOINT}'
 
         #innerbank
         cond = cmds.createNode('condition')

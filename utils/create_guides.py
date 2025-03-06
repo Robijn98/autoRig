@@ -1,4 +1,14 @@
 import maya.cmds as cmds
+import sys
+import os
+import importlib
+import math 
+
+sys.path.append('/home/s5725067/myRepos/autoRig/')
+import rig_constants
+importlib.reload(rig_constants)
+from rig_constants import *
+
 
 class guides:
     def __init__(self, side, name, number=5):
@@ -55,7 +65,7 @@ class guides:
 
         cmds.select(cl=True)
 
-        # create jaw_base
+        # create base
         eye_base_guide_grp = cmds.createNode('transform', name=f'{CENTER}_{self.name}_base_{GUIDE}_{GROUP}',
                                             parent=
                                             eye_guide_grp)

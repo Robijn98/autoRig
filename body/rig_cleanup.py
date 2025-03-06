@@ -96,12 +96,14 @@ class cleanup:
         cmds.parent('spine_FK_curve', f'dontTouch_{GROUP}')
         cmds.parent('body_GRP', f'root_{CONTROL}')
 
+
+
     def rev_foot_cleanup(self):
         offset = cmds.group(name = f'{self.side}_{REVERSE}_{GROUP}', empty=True)
-        mat = cmds.xform(self.ankleJNT, q=True, m=True, ws=True)
+        mat = cmds.xform(self.ankleJnt, q=True, m=True, ws=True)
         cmds.xform(offset, m=mat, ws=True)
 
-        cmds.parent(f'{self.side}_innerbank_{REVERSE}_{JOINT}', offset)
+        cmds.parent(f'{self.side}_innerBank_{JOINT}', offset)
 
         cmds.parentConstraint(f'{self.side}_IK_ankle_CTRL', offset, mo=True)
 

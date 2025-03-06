@@ -50,6 +50,15 @@ except ImportError:
     print("Error importing hand_rig")
 
 
+try: 
+    import rig_foot
+    importlib.reload(rig_foot)
+    from rig_foot import foot
+    print("imported foot_rig successfully")
+except ImportError:
+    print("Error importing foot_rig")
+
+
 #cleanup
 try:
     import rig_cleanup
@@ -58,6 +67,26 @@ try:
     print("imported cleanup successfully")
 except ImportError:
     print("Error importing cleanup")
+
+
+#face
+sys.path.append('/home/s5725067/myRepos/autoRig/utils/')
+try:
+    import create_guides
+    importlib.reload(create_guides)
+    from create_guides import guides
+except ImportError:
+    print("Error importing create_guides")
+
+try:
+    import rig_eye
+    importlib.reload(rig_eye)
+    from rig_eye import eye
+    print("imported eye_rig successfully") 
+except ImportError:
+    print("Error importing eye_rig")
+
+
 
 
 #from spine_rig import IKFK_spine
@@ -89,15 +118,24 @@ except ImportError:
 
 
 def main():
-    print("reopening file")
-    current_file = cmds.file(q=True, sn=True)
-    if current_file:
-        cmds.file(current_file, o=True, f=True)
-    else:
-        print("No file to open")
+    # print("reopening file")
+    # current_file = cmds.file(q=True, sn=True)
+    # if current_file:
+    #     cmds.file(current_file, o=True, f=True)
+    # else:
+    #     print("No file to open")
 
         
-    print("Running main")
+    # print("Running main")
+
+    # try:
+    #     eye_guides = guides('R', 'eye')
+    #     eye_guides.create_eye_guides()
+    #     eye_guides = guides('L', 'eye')
+    #     eye_guides.create_eye_guides()
+    # except Exception as e:
+    #     print(f"Error creating eye guides: {e}")
+        
     
     try:
         my_setup = setup("root_JNT")
@@ -107,7 +145,7 @@ def main():
 
 
     try:
-        spine = IKFK_spine(['spineA_JNT', 'spineB_JNT', 'spineC_JNT', 'spineD_JNT', 'spineE_JNT', 'spineF_JNT', 'spineG_JNT'])
+        spine = IKFK_spine(['spineA_JNT', 'spineB_JNT', 'spineC_JNT', 'spineD_JNT', 'spineE_JNT', 'spineF_JNT'])
         
         spine.spine()
     except Exception as e:
@@ -123,6 +161,18 @@ def main():
     except Exception as e:
         print(f"Error during leg setup: {e}")
 
+    
+    try:
+        foot_rig = foot('L_ankle_JNT', 'L_ball_JNT', 'L_toe_JNT', LEFT)
+        foot_rig.rev_foot("L_rev_CTRL_guide")
+        print("Left foot setup complete")
+        foot_rig = foot('R_ankle_JNT', 'R_ball_JNT', 'R_toe_JNT', RIGHT)
+        foot_rig.rev_foot("R_rev_CTRL_guide")
+        print("Right foot setup complete")
+    except Exception as e:
+        print(f"Error during foot setup: {e}")
+
+
     try:
         arm = IKFK_arm('R_shoulder_JNT', 'R_elbow_JNT', 'R_wrist_JNT', 'R_clav_JNT', RIGHT)
         arm.arm()
@@ -135,22 +185,21 @@ def main():
 
 
     try:
-        fingers = hand('R_wrist_JNT',['R_thumb', 'R_index', 'R_middle','R_ring', 'R_pinky'])
+        fingers = hand('R_wrist_JNT',['R_thumb', 'R_index', 'R_middle','R_pinky'])
         fingers.fingers_rig()
         print("Right fingers setup complete")
-        fingers = hand('L_wrist_JNT',['L_thumb', 'L_index', 'L_middle', 'L_ring', 'L_pinky'])
+        fingers = hand('L_wrist_JNT',['L_thumb', 'L_index', 'L_middle','L_pinky'])
         fingers.fingers_rig()
         print("Left fingers setup complete")
     except Exception as e:
         print(f"Error during finger setup: {e}")
 
     try:
-        rig_clean = cleanup("L_hip_JNT", "L_knee_JNT", "L_ankle_JNT", "L_shoulder_JNT", "L_elbow_JNT", "L_wrist_JNT", LEFT, fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'])
-        rig_clean.cleanup_full(spine = True, leg=True, arm=True, hand = True, rev_foot = False)
-        rig_clean = cleanup("R_hip_JNT", "R_knee_JNT", "R_ankle_JNT", "R_shoulder_JNT", "R_elbow_JNT", "R_wrist_JNT", RIGHT, fingers = ['thumb', 'index', 'middle', 'ring', 'pinky'])
-        rig_clean.cleanup_full(spine = False, hand = True, rev_foot = False)
+        rig_clean = cleanup("L_hip_JNT", "L_knee_JNT", "L_ankle_JNT", "L_shoulder_JNT", "L_elbow_JNT", "L_wrist_JNT", LEFT, fingers = ['thumb', 'index', 'middle',  'pinky'])
+        rig_clean.cleanup_full(spine = True, leg=True, arm=True, hand = True, rev_foot = True)
+        rig_clean = cleanup("R_hip_JNT", "R_knee_JNT", "R_ankle_JNT", "R_shoulder_JNT", "R_elbow_JNT", "R_wrist_JNT", RIGHT, fingers = ['thumb', 'index', 'middle', 'pinky'])
+        rig_clean.cleanup_full(spine = False, hand = True, rev_foot = True)
         print("Cleanup complete")
     except Exception as e:
         print(f"Error during cleanup: {e}")
-
-
+        

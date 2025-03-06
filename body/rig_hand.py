@@ -76,11 +76,10 @@ class hand:
 
                 #connect attributes
                 if '_01' not in offset:
-                    cmds.connectAttr(f'{hand_ctrl}.{finger}_curl', f'{offset}.ry')
+                    cmds.connectAttr(f'{hand_ctrl}.{finger}_curl', f'{offset}.rz')
 
     
     def fingers_rig(self):
         self.fk_fingers()
         self.fingers_attr()
 
-# fk_fingers('L_wristJNT', ['L_index', 'L_middle', 'L_ring', 'L_pinky', 'L_thumb'])
