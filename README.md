@@ -24,13 +24,6 @@
 RF is a tool you can use within maya to autorig creatures and digidoubles. The tool uses a skeleton
 to build upon and creates all controllers and functionality through a modifiable script. 
 
-### Built With
-<div align="center">
-
-[![Python](https://img.shields.io/badge/Python-3776AB.svg?&logo=python&logoColor=white)](#)
-[![maya.cmds](https://img.shields.io/badge/maya.cmds-2C2C2C.svg?&logo=autodesk&logoColor=white)](#)
-
-</div>
 
 
 <!-- GETTING STARTED -->
